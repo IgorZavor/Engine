@@ -5,7 +5,7 @@ using System;
 
 namespace Engine.Services.LogsServices.Logs
 {
-	public class LogsService
+	public class LogsService: LogsServiceBase
 	{
 		public LogsService(ILogsRepository repository, ILogger logger) : base(repository, logger)
 		{
@@ -20,11 +20,6 @@ namespace Engine.Services.LogsServices.Logs
 				default: 
 					throw new InvalidOperationException($"Users table doens't contain the {column} colunm or summation is not supported by {column} column ");
 			}
-		}
-
-		protected override object CreateEntity()
-		{
-			return new Log() { };
 		}
 
 		protected override string TableName => "Logs";

@@ -11,9 +11,10 @@ using Microsoft.Extensions.Hosting;
 using Engine.Services;
 using Engine.DAL.Repositories.Companies;
 using System;
-using Engine.Services.Users;
-using Engine.Services.Companies;
-
+using Engine.Services.WorkingServices.Users;
+using Engine.Services.WorkingServices.Companies;
+using Engine.Services.LogsServices.Logs;
+using Engine.Services.Resolvers;
 
 namespace Engine
 {
@@ -37,6 +38,7 @@ namespace Engine
             services.AddScoped<ICompaniesRepository, CompaniesRepository>();
             services.AddScoped<CompaniesService>();
             services.AddScoped<UsersService>();
+            services.AddScoped<LogsService>();
 
             var settings = Configuration.GetSection(nameof(Settings)).Get<Settings>();
             services.AddDbContext<EngineContext>(options =>
@@ -45,7 +47,7 @@ namespace Engine
 			});
 			services.AddControllers().AddXmlSerializerFormatters().AddXmlDataContractSerializerFormatters();
 
-            services.AddScoped<ServiceResolver>(sp => table =>
+            services.AddScoped<WorkingServiceResolver>(sp => table =>
             {
                 switch (table)
                 {
@@ -57,6 +59,23 @@ namespace Engine
                         throw new ArgumentException($"Unsupported service type for {table} table.");
                 }
             });
+
+            services.AddScoped<ServiceResolver>(sp => table =>
+            {
+                switch (table)
+                {
+                    case Enums.Tables.Companies:
+                        return sp.GetService<CompaniesService>();
+                    case Enums.Tables.Users:
+                        return sp.GetService<UsersService>();
+                    case Enums.Tables.Logs:
+                        return sp.GetService<LogsService>();
+                    default:
+                        throw new ArgumentException($"Unsupported service type for {table} table.");
+                }
+            });
+
+            
 
             services.AddSwaggerGen();
         }

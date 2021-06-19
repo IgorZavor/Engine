@@ -7,9 +7,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Engine.Services
+namespace Engine.Services.LogsServices
 {
-	public abstract class ILogsService: ILogsService
+	public abstract class LogsServiceBase: ILogsService
 	{
 		private IRepository _repository;
 		protected ILogger _logger;
@@ -22,37 +22,9 @@ namespace Engine.Services
 			}
 		}
 
-		public ILogsService(IRepository repository, ILogger logger) {
+		public LogsServiceBase(IRepository repository, ILogger logger) {
 			_repository = repository;
 			_logger = logger;
-		}
-
-		public async Task Generate(int count)
-		{
-			var mtx = new Mutex();
-			try
-			{
-				_repository.AutoDetectChangesEnabled = false;
-				Parallel.For(0, count, (int userNum) =>
-				{
-					mtx.WaitOne();
-					var insertModel = CreateEntity();
-					_repository.Insert(insertModel);
-					mtx.ReleaseMutex();
-					_logger.LogInformation($"New model has been added.");
-					Thread.Sleep(100);
-				});
-				await _repository.SaveAsync();
-				_logger.LogInformation($"Saving has been done.");
-			}
-			catch (DataException ex)
-			{
-				throw ex;
-			}
-			finally
-			{
-				_repository.AutoDetectChangesEnabled = true;
-			}
 		}
 
 		public async Task Clear()
@@ -124,8 +96,6 @@ namespace Engine.Services
 		}
 
 		protected abstract int GetValue(object entity, string column);
-
-		protected abstract object CreateEntity();
 
 		public void Dispose()
 		{

@@ -11,17 +11,18 @@ using Engine.Cache;
 using Newtonsoft.Json;
 using Engine.Models.Out;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Data;
+using Engine.Services.LogsServices;
+using Engine.Services.WorkingServices;
 
 namespace Engine.Tests.Controllers
 {
 	[TestFixture]
 	public class Tests: EngineTestController
 	{
-		private ILogsService _service;
+		private WorkingBaseService _service;
 
-		private ILogsService ServiceResolver(Enums.Tables tableType) {
+		private WorkingBaseService ServiceResolver(Enums.Tables tableType) {
 			if (_service != null)
 				return _service;
 			switch (tableType)

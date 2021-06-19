@@ -4,9 +4,9 @@ using Engine.Providers;
 using Microsoft.Extensions.Logging;
 using System;
 
-namespace Engine.Services.Users
+namespace Engine.Services.WorkingServices.Users
 {
-	public class UsersService : ILogsService
+	public class UsersService : WorkingBaseService
 	{
 		private Random _random;
 		public UsersService(IUsersRepository repository, ILogger<UsersService> logger) : base(repository, logger)

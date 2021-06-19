@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Engine.Services.WorkingServices
 {
-	public abstract class WorkingBaseService : IWorkService
+	public abstract class WorkingBaseService : IWorkingService
 	{
 		private IRepository _repository;
 		protected ILogger _logger;

@@ -13,6 +13,8 @@ using Engine.Services;
 using System.Linq;
 using Engine.Models.Out;
 using Engine.DAL.Models;
+using Engine.Services.Resolvers;
+using Engine.Services.WorkingServices;
 
 namespace Engine.Controllers
 {
@@ -31,14 +33,14 @@ namespace Engine.Controllers
 		}
 
 		[HttpPost, Route("generate")]
-		public async Task<ActionResult> Generate(GenerateIn model, [FromServices]ServiceResolver resolver)
+		public async Task<ActionResult> Generate(GenerateIn model, [FromServices] WorkingServiceResolver resolver)
 		{
 			if (model.Count <= 0) 
 			{
 				return new JsonResult(new ResultOut { Message = "Generation count must be more 0", Error = false });
 			}
 			var start = DateTime.Now;
-			ILogsService repositoryService = null;
+			IWorkingService repositoryService = null;
 			try
 			{
 				var table = (Enums.Tables)Enum.Parse(typeof(Enums.Tables), model.Table, true);
@@ -62,10 +64,10 @@ namespace Engine.Controllers
 		}
 
 		[HttpDelete, Route("clear")]
-		public async Task<ActionResult> Clear(ClearIn model, [FromServices] ServiceResolver resolver)
+		public async Task<ActionResult> Clear(ClearIn model, [FromServices] WorkingServiceResolver resolver)
 		{
 			var start = DateTime.Now;
-			ILogsService repositoryService = null;
+			IWorkingService repositoryService = null;
 			try
 			{
 				var table = (Enums.Tables)Enum.Parse(typeof(Enums.Tables), model.Table, true);
@@ -92,7 +94,7 @@ namespace Engine.Controllers
 		public async Task<ActionResult> FilterAndSum(FilterByIn model, [FromServices] ServiceResolver serviceResolver) 
 		{
 			var sum = 0;
-			ILogsService repositoryService = null;
+			IBaseService repositoryService = null;
 			try
 			{
 				var table = (Enums.Tables)Enum.Parse(typeof(Enums.Tables), model.Table, true);
@@ -143,7 +145,7 @@ namespace Engine.Controllers
 		[HttpGet, Route("getAllEntities")]
 		public async Task<ActionResult> GetAll(GetEntitiesIn model, [FromServices] ServiceResolver serviceResolver) 
 		{
-			ILogsService repositoryService = null;
+			IBaseService repositoryService = null;
 			try
 			{
 				var table = (Enums.Tables)Enum.Parse(typeof(Enums.Tables), model.Table, true);

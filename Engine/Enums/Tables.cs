@@ -3,7 +3,7 @@
 	public enum Tables
 	{
 		Users,
-		Log,
+		Logs,
 		Companies
 	}
 }

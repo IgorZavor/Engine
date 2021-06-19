@@ -1,4 +1,4 @@
-﻿namespace Engine.Services.Users
+﻿namespace Engine.Services.WorkingServices.Users
 {
 	public enum SummaryColumns
 	{
