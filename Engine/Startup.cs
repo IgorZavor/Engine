@@ -1,0 +1,89 @@
+using Engine.DAL.Contexts;
+using Engine.DAL.Repositories.Users;
+using Engine.DAL.Repositories.Logs;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Engine.Services;
+using Engine.DAL.Repositories.Companies;
+using System;
+using Engine.Services.Users;
+using Engine.Services.Companies;
+
+
+namespace Engine
+{
+    public class Startup
+    {
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
+        public IConfiguration Configuration { get; }
+
+		// This method gets called by the runtime. Use this method to add services to the container.
+		public void ConfigureServices(IServiceCollection services)
+		{
+			services.AddOptions().Configure<Settings>(Configuration.GetSection("Settings")).AddSingleton(Configuration);
+
+			services.AddMemoryCache();
+			services.AddScoped<IUsersRepository, UsersRepository>();
+			services.AddScoped<ILogsRepository, LogsRepository>();
+            services.AddScoped<ICompaniesRepository, CompaniesRepository>();
+            services.AddScoped<CompaniesService>();
+            services.AddScoped<UsersService>();
+
+            var settings = Configuration.GetSection(nameof(Settings)).Get<Settings>();
+            services.AddDbContext<EngineContext>(options =>
+			{
+				options.UseSqlite(settings.ConnnectionStrings.Sqlite);
+			});
+			services.AddControllers().AddXmlSerializerFormatters().AddXmlDataContractSerializerFormatters();
+
+            services.AddScoped<ServiceResolver>(sp => table =>
+            {
+                switch (table)
+                {
+                    case Enums.Tables.Companies:
+                        return sp.GetService<CompaniesService>();
+                    case Enums.Tables.Users:
+                        return sp.GetService<UsersService>();
+                    default:
+                        throw new ArgumentException($"Unsupported service type for {table} table.");
+                }
+            });
+
+            services.AddSwaggerGen();
+        }
+
+		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+
+            app.UseRouting();
+
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+            });
+
+        }
+    }
+}
