@@ -62,39 +62,45 @@ namespace Engine.DAL.Repositories.Companies
 				return await Task.FromResult(new List<object>());
 			}
 			var valuesToLower = valuesForFilter.Select(v => v.ToLower()).ToList();
-			var enumValue = (Column)Enum.Parse(typeof(Column), column, true);
+			var enumValue = (Columns)Enum.Parse(typeof(Columns), column, true);
 			switch (enumValue)
 			{
-				case Column.Country:
+				case Columns.Id:
+					return await FilterByIds(valuesToLower);
+				case Columns.Country:
 					return await FilterByCountry(valuesToLower);
-				case Column.DateFounded:
+				case Columns.YearFounded:
 					return await FilterByDatesFounded(valuesToLower);
-				case Column.NumberOfEmployees:
+				case Columns.NumberOfEmployees:
 					return await FilterByNumberOfEmployees(valuesToLower);
-				case Column.Name:
+				case Columns.Name:
 					return await FilterByNames(valuesToLower);
 				default:
 					throw new InvalidOperationException($"Impossible filter table by {column} column");
 			}
 		}
 
-		public async Task<List<object>> FilterByNames(List<string> names)
+		private async Task<List<object>> FilterByIds(List<string> ids)
+		{
+			var idsInt = ids.Select(id => int.Parse(id));
+			return await _context.Companies.Where(u => idsInt.Contains(u.Id)).ToListAsync<object>();
+		}
+
+		private async Task<List<object>> FilterByNames(List<string> names)
 		{
 			return await _context.Companies.Where(u => names.Contains(u.Name.ToLower())).ToListAsync<object>();
 		}
 
-		public async Task<List<object>> FilterByDatesFounded(List<string> dates)
+		private async Task<List<object>> FilterByDatesFounded(List<string> dates)
 		{
-			var datesInt = new List<int>();
-			dates.ForEach(d => datesInt.Add(int.Parse(d)));
+			var datesInt = dates.Select(n => int.Parse(n));
 			return await _context.Companies.Where(u => datesInt.Contains(u.YearFounded)).ToListAsync<object>();
 		}
 
-		public async Task<List<object>> FilterByNumberOfEmployees(List<string> numbersOfEmployees)
+		private async Task<List<object>> FilterByNumberOfEmployees(List<string> numbersOfEmployees)
 		{
-			var numbersOfEmployeesInt = new List<int>();
-			numbersOfEmployees.ForEach(d => numbersOfEmployeesInt.Add(int.Parse(d)));
-			return await _context.Companies.Where(u => numbersOfEmployeesInt.Contains(u.YearFounded)).ToListAsync<object>();
+			var numbersOfEmployeesInt = numbersOfEmployees.Select(n => int.Parse(n));
+			return await _context.Companies.Where(u => numbersOfEmployeesInt.Contains(u.NumberOfEmployees)).ToListAsync<object>();
 		}
 
 		public async Task<List<object>> FilterByCountry(List<string> countries)
@@ -116,13 +122,13 @@ namespace Engine.DAL.Repositories.Companies
 			}
 		}
 
-		public async Task<object> Get(int id)
+		public async Task<object> GetEntity(int id)
 		{
 			return await _context.Companies.FirstOrDefaultAsync(c => c.Id == id);
 		}
 
-		public IQueryable<object> GetEntities() {
-			return _context.Companies.AsQueryable<Company>();
+		public async Task<List<object>> GetEntities() {
+			return await _context.Companies.AsQueryable<object>().ToListAsync();
 		}
 
 		public async Task<int> SaveAsync()

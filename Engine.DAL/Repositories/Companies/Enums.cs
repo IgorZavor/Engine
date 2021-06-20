@@ -1,10 +1,10 @@
 ﻿namespace Engine.DAL.Repositories.Companies
 {
-	public enum Column 
+	public enum Columns 
 	{
 		Id,
 		Name,
-		DateFounded,
+		YearFounded,
 		NumberOfEmployees,
 		Country
 	}

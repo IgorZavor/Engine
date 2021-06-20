@@ -5,6 +5,7 @@
 		Author,
 		Id,
 		DateTime,
-		Filter
+		Filter,
+		Sum
 	}
 }

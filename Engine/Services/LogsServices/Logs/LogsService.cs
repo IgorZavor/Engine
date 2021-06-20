@@ -7,18 +7,20 @@ namespace Engine.Services.LogsServices.Logs
 {
 	public class LogsService: LogsServiceBase
 	{
-		public LogsService(ILogsRepository repository, ILogger logger) : base(repository, logger)
+		public LogsService(ILogsRepository repository, ILogger<LogsService> logger) : base(repository, logger)
 		{
 		}
 
 		protected override int GetValue(object entity, string column)
 		{
-			var summartColumn = (SummaryColumns)Enum.Parse(typeof(SummaryColumns), column, true);
+			var summartColumn = (Columns)Enum.Parse(typeof(Columns), column, true);
 			switch (summartColumn) {
-				case SummaryColumns.Id:
+				case Columns.Id:
 					return ((Log)entity).Id;
+				case Columns.Sum:
+					return ((Log)entity).Sum;
 				default: 
-					throw new InvalidOperationException($"Users table doens't contain the {column} colunm or summation is not supported by {column} column ");
+					throw new InvalidOperationException($"{TableName} table doens't contain the {column} colunm or summation is not supported by {column} column ");
 			}
 		}
 

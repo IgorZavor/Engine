@@ -3,18 +3,17 @@ using Engine.DAL.Repositories.Users;
 using Engine.DAL.Repositories.Logs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Engine.Services;
 using Engine.DAL.Repositories.Companies;
 using System;
 using Engine.Services.WorkingServices.Users;
 using Engine.Services.WorkingServices.Companies;
 using Engine.Services.LogsServices.Logs;
 using Engine.Services.Resolvers;
+using Engine.Services.LogsServices;
 
 namespace Engine
 {
@@ -38,7 +37,7 @@ namespace Engine
             services.AddScoped<ICompaniesRepository, CompaniesRepository>();
             services.AddScoped<CompaniesService>();
             services.AddScoped<UsersService>();
-            services.AddScoped<LogsService>();
+            services.AddScoped<ILogsService, LogsService>();
 
             var settings = Configuration.GetSection(nameof(Settings)).Get<Settings>();
             services.AddDbContext<EngineContext>(options =>
@@ -51,9 +50,9 @@ namespace Engine
             {
                 switch (table)
                 {
-                    case Enums.Tables.Companies:
+                    case Tables.Companies:
                         return sp.GetService<CompaniesService>();
-                    case Enums.Tables.Users:
+                    case Tables.Users:
                         return sp.GetService<UsersService>();
                     default:
                         throw new ArgumentException($"Unsupported service type for {table} table.");
@@ -64,11 +63,11 @@ namespace Engine
             {
                 switch (table)
                 {
-                    case Enums.Tables.Companies:
+                    case Tables.Companies:
                         return sp.GetService<CompaniesService>();
-                    case Enums.Tables.Users:
+                    case Tables.Users:
                         return sp.GetService<UsersService>();
-                    case Enums.Tables.Logs:
+                    case Tables.Logs:
                         return sp.GetService<LogsService>();
                     default:
                         throw new ArgumentException($"Unsupported service type for {table} table.");

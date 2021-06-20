@@ -1,9 +1,9 @@
-﻿using Engine.DAL.Repositories;
+﻿using Engine.CacheModels;
+using Engine.DAL.Models;
+using Engine.DAL.Repositories;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -56,10 +56,10 @@ namespace Engine.Services.LogsServices
 			}
 		}
 
-		public IQueryable<object> GetEntities() {
+		public async Task<List<object>> GetEntities() {
 			try
 			{
-				var entites = _repository.GetEntities();
+				var entites = await _repository.GetEntities();
 				_logger.LogInformation($"Getting entites is done");
 				return entites;
 			}
@@ -100,6 +100,19 @@ namespace Engine.Services.LogsServices
 		public void Dispose()
 		{
 			_repository.Dispose();
+		}
+
+		public async Task Write(CacheModel cache)
+		{
+			var log = new Log()
+			{
+				Author = cache.Author,
+				DateTime = cache.DateTime.ToString("MM/dd/yy H:mm:ss zzz"),
+				Filter = cache.Filter,
+				Sum = cache.Sum
+			};
+			_repository.Insert(log);
+			await _repository.SaveAsync();
 		}
 
 		protected virtual string TableName => "";

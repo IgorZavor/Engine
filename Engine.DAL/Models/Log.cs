@@ -14,5 +14,8 @@ namespace Engine.DAL.Models
 
 		public string Filter { get; set; }
 
+		[Required]
+		public int Sum { get; set; }
+
 	}
 }

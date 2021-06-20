@@ -84,14 +84,15 @@ namespace Engine.Services.WorkingServices
 			}
 		}
 
-		public IQueryable<object> GetEntities() {
+		public async Task<List<object>> GetEntities() 
+		{
 			try
 			{
-				var entites = _repository.GetEntities();
+				var entites = await _repository.GetEntities();
 				_logger.LogInformation($"Getting entites is done");
 				return entites;
 			}
-			catch (Exception ex)
+			catch (ArgumentNullException ex)
 			{
 				throw ex;
 			}
@@ -103,7 +104,15 @@ namespace Engine.Services.WorkingServices
 			var sum = 0;
 			try
 			{
-				var results = await _repository.FilterBy(filterColumn, filterValues);
+				List<object> results = null;
+				if (filterValues.Count == 0)
+				{
+					results = await GetEntities();
+				}
+				else 
+				{
+					results = await _repository.FilterBy(filterColumn, filterValues);
+				}
 				Parallel.For(0, results.Count, (int num) =>
 				{
 					mtx.WaitOne();
@@ -116,9 +125,6 @@ namespace Engine.Services.WorkingServices
 			catch (Exception ex)
 			{
 				throw ex;
-			}
-			finally
-			{
 			}
 			return sum;
 		}

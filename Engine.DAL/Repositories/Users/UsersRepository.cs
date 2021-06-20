@@ -62,16 +62,18 @@ namespace Engine.DAL.Repositories.Users
 			if (valueForFilter != null || valueForFilter.Count > 0)
 			{
 				var valuesToLower = valueForFilter.Select(v => v.ToLower()).ToList();
-				var enumValue = (Column)Enum.Parse(typeof(Column), column, true);
+				var enumValue = (Columns)Enum.Parse(typeof(Columns), column, true);
 				switch (enumValue)
 				{
-					case Column.Country:
+					case Columns.Id:
+						return await FilterByIds(valuesToLower);
+					case Columns.Country:
 						return await FilterByCountry(valuesToLower);
-					case Column.Surname:
+					case Columns.Surname:
 						return await FilterBySurnames(valuesToLower);
-					case Column.Age:
+					case Columns.Age:
 						return await FilterByAges(valuesToLower);
-					case Column.Name:
+					case Columns.Name:
 						return await FilterByNames(valuesToLower);
 					default:
 						throw new InvalidOperationException($"Impossible filter table by {column} column");
@@ -81,6 +83,12 @@ namespace Engine.DAL.Repositories.Users
 			{
 				return await Task.FromResult(new List<object>());
 			}
+		}
+
+		private async Task<List<object>> FilterByIds(List<string> ids)
+		{
+			var idsInt = ids.Select(n => int.Parse(n));
+			return await _context.Users.Where(u => idsInt.Contains(u.Id)).ToListAsync<object>();
 		}
 
 		private async Task<List<object>> FilterByNames(List<string> names)
@@ -99,7 +107,7 @@ namespace Engine.DAL.Repositories.Users
 		}
 		private async Task<List<object>> FilterByAges(List<string> ages)
 		{
-			var agesInt = ages.Select(a => int.Parse(a)).ToList();
+			var agesInt = ages.Select(n => int.Parse(n));
 			return await _context.Users.Where(u => agesInt.Contains(u.Age)).ToListAsync<object>();
 		}
 
@@ -116,13 +124,13 @@ namespace Engine.DAL.Repositories.Users
 			}
 		}
 
-		public async Task<object> Get(int id)
+		public async Task<object> GetEntity(int id)
 		{
 			return await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
 		}
 
-		public IQueryable<object> GetEntities() {
-			return _context.Users.AsQueryable<User>();
+		public async Task<List<object>> GetEntities() {
+			return await _context.Users.AsQueryable<object>().ToListAsync();
 		}
 
 		public async Task<int> SaveAsync()

@@ -12,8 +12,8 @@ namespace Engine.DAL.Repositories
 		void Delete(int id);
 		Task DeleteRow(int row);
 		void DeletesRange(IEnumerable<object> entities);
-		Task<object> Get(int id);
-		IQueryable<object> GetEntities();
+		Task<object> GetEntity(int id);
+		Task<List<object>> GetEntities();
 		Task<int> SaveAsync();
 		bool AutoDetectChangesEnabled { get; set; }
 		Task<int> GetCountAsync();

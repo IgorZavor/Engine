@@ -45,14 +45,14 @@ namespace Engine.Services.WorkingServices.Users
 
 		protected override int GetValue(object entity, string column)
 		{
-			var summartColumn = (SummaryColumns)Enum.Parse(typeof(SummaryColumns), column, true);
+			var summartColumn = (Columns)Enum.Parse(typeof(Columns), column, true);
 			switch (summartColumn) {
-				case SummaryColumns.Age:
+				case Columns.Age:
 					return ((User)entity).Age;
-				case SummaryColumns.Id:
+				case Columns.Id:
 					return ((User)entity).Id;
 				default:
-					throw new InvalidOperationException($"Users table doesn't contain the {column} colunm or summation is not supported by {column} column ");
+					throw new InvalidOperationException($"{TableName} table doesn't contain the {column} column or summation is not supported by {column} column ");
 			}
 			
 		}

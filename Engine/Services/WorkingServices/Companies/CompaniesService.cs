@@ -47,17 +47,17 @@ namespace Engine.Services.WorkingServices.Companies
 
 		protected override int GetValue(object entity, string column)
 		{
-			var summartColumn = (SummaryColumns)Enum.Parse(typeof(SummaryColumns), column, true);
+			var summartColumn = (Columns)Enum.Parse(typeof(Columns), column, true);
 			switch (summartColumn)
 			{
-				case SummaryColumns.Id:
+				case Columns.Id:
 					return ((Company)entity).Id;
-				case SummaryColumns.NumberOfEmployees:
+				case Columns.NumberOfEmployees:
 					return ((Company)entity).NumberOfEmployees;
-				case SummaryColumns.YearFounded:
+				case Columns.YearFounded:
 					return ((Company)entity).YearFounded;
 				default:
-					throw new InvalidOperationException($"Users table doens't contain the {column} colunm or summation is not supported by {column} column ");
+					throw new InvalidOperationException($"{TableName} table doens't contain the {column} colunm or summation is not supported by {column} column ");
 			}
 		}
 

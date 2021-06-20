@@ -13,7 +13,11 @@ namespace Engine.DAL.Repositories.Logs
 		protected readonly EngineContext _context;
 		private bool _disposed = false;
 
-		public bool AutoDetectChangesEnabled { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+		public bool AutoDetectChangesEnabled 
+		{ 
+			get => _context.ChangeTracker.AutoDetectChangesEnabled; 
+			set => _context.ChangeTracker.AutoDetectChangesEnabled = value; 
+		}
 
 		public LogsRepository(EngineContext context)
 		{
@@ -40,9 +44,9 @@ namespace Engine.DAL.Repositories.Logs
 			_context.Logs.Remove(log);
 		}
 
-		public IQueryable<object> GetEntities()
+		public async Task<List<object>> GetEntities()
 		{
-			return _context.Logs.AsQueryable<Log>();
+			return await _context.Logs.AsQueryable<object>().ToListAsync();
 		}
 
 		public void InsertRange(IEnumerable<object> entities)
@@ -50,7 +54,7 @@ namespace Engine.DAL.Repositories.Logs
 			try
 			{
 				var logs = entities.Cast<Log>();
-				_context.Logs.RemoveRange(logs);
+				_context.Logs.AddRange(logs);
 			}
 			catch (InvalidCastException e)
 			{
@@ -77,7 +81,7 @@ namespace Engine.DAL.Repositories.Logs
 			}
 		}
 
-		public async Task<object> Get(int id)
+		public async Task<object> GetEntity(int id)
 		{
 			return await _context.Logs.FirstOrDefaultAsync(l => l.Id == id);
 		}
@@ -103,6 +107,8 @@ namespace Engine.DAL.Repositories.Logs
 						return await FilterByDateTimes(valuesToLower);
 					case Columns.Filter:
 						return await FilterByFilters(valuesToLower);
+					case Columns.Sum:
+						return await FilterBySums(valuesToLower);
 					default:
 						throw new InvalidOperationException($"Impossible filter table by {column} column");
 				}
@@ -113,9 +119,16 @@ namespace Engine.DAL.Repositories.Logs
 			}
 		}
 
+		private async Task<List<object>> FilterBySums(List<string> sums)
+		{
+			var sumsInt = sums.Select(n => int.Parse(n));
+			return await _context.Logs.Where(u => sumsInt.Contains(u.Sum)).ToListAsync<object>();
+		}
+
 		private async Task<List<object>> FilterByIDs(List<string> ids)
 		{
-			return await _context.Logs.Where(u => ids.Contains(u.Id.ToString())).ToListAsync<object>();
+			var idsInt = ids.Select(n => int.Parse(n));
+			return await _context.Logs.Where(u => idsInt.Contains(u.Id)).ToListAsync<object>();
 		}
 
 		private async Task<List<object>> FilterByAuthors(List<string> authors)
@@ -125,7 +138,7 @@ namespace Engine.DAL.Repositories.Logs
 
 		private async Task<List<object>> FilterByDateTimes(List<string> dateTimes)
 		{
-			return await _context.Logs.Where(u => dateTimes.Contains(u.Author.ToLower())).ToListAsync<object>();
+			return await _context.Logs.Where(u => dateTimes.Contains(u.DateTime.ToLower())).ToListAsync<object>();
 		}
 
 		private async Task<List<object>> FilterByFilters(List<string> filters)

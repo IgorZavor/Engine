@@ -33,7 +33,7 @@ namespace Engine.Tests.Repositories.Users
 			var count = await GetCountAsync();
 			Assert.AreEqual(5, count);
 
-			var addedUser = (await Get(userId)) as User;
+			var addedUser = (await GetEntity(userId)) as User;
 			Assert.IsNotNull(addedUser);
 			AreEqualByJson(user, addedUser);
 		}
@@ -41,14 +41,14 @@ namespace Engine.Tests.Repositories.Users
 		[Test]
 		public async Task RemoveUserById_CheckCount()
 		{
-			var DeletedId = 1;
+			var deletedId = 1;
 			var countBefore = await GetCountAsync();
-			Delete(DeletedId);
+			Delete(deletedId);
 			await SaveAsync();
 			var countAfter = await GetCountAsync();
 			Assert.AreEqual(countBefore - 1, countAfter);
 
-			var removed = await GetEntities().FirstOrDefaultAsync(u => (u as User).Id == DeletedId);
+			var removed = await GetEntity(deletedId);
 			Assert.IsNull(removed);
 		}
 
@@ -56,15 +56,61 @@ namespace Engine.Tests.Repositories.Users
 		public async Task RemoveRow_CheckTableCondition()
 		{
 			var row = 1;
-			var userAtRow = (await GetEntities().ToListAsync())[row] as User;
+			var userAtRow = (await GetEntities())[row] as User;
 			var countBefore = await GetCountAsync();
 			await DeleteRow(row);
 			await SaveAsync();
 			var countAfter = await GetCountAsync();
 			Assert.AreEqual(countBefore - 1, countAfter);
 
-			var removed = await GetEntities().FirstOrDefaultAsync(u => (u as User).Id == userAtRow.Id);
+			var removed = await GetEntity(userAtRow.Id);
 			Assert.IsNull(removed);
+		}
+
+		[Test]
+		public async Task FilterBy_CheckResult()
+		{
+			var results = await FilterBy("Age", new List<string> { "99" });
+			Assert.AreEqual(1, results.Count);
+			foreach (var r in results)
+			{
+				var user = r as User;
+				Assert.AreEqual(99, user.Age);
+			}
+
+			results = await FilterBy("Country", new List<string> { "Canada" });
+			Assert.AreEqual(3, results.Count);
+			foreach (var r in results)
+			{
+				var user = r as User;
+				Assert.AreEqual("Canada", user.Country);
+			}
+
+			results = await FilterBy("Name", new List<string> { "Johny" });
+			Assert.AreEqual(1, results.Count);
+			foreach (var r in results)
+			{
+				var user = r as User;
+				Assert.AreEqual("Johny", user.Name);
+			}
+
+			results = await FilterBy("Surname", new List<string> { "Jackson", "Jackson1" });
+			Assert.AreEqual(2, results.Count);
+			foreach (var r in results)
+			{
+				var user = r as User;
+
+				Assert.IsTrue(user.Surname == "Jackson" || user.Surname == "Jackson1");
+			}
+
+			results = await FilterBy("id", new List<string> { "3",  });
+			Assert.AreEqual(1, results.Count);
+			foreach (var r in results)
+			{
+				var user = r as User;
+
+				Assert.IsTrue(user.Id == 3);
+			}
 		}
 
 

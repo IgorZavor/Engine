@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using System.Linq;
 
 namespace Engine.Tests.Repositories.Companies
 {
@@ -16,7 +17,7 @@ namespace Engine.Tests.Repositories.Companies
 				new Company() { Id = 1, Country = "USA", Name = "James Inc.",  NumberOfEmployees = 22, YearFounded = 1920   },
 				new Company() { Id = 2, Country = "Canada", Name = "Johny Industry", NumberOfEmployees = 33, YearFounded = 1933},
 				new Company() { Id = 3, Country = "Canada", Name = "Pepsi", NumberOfEmployees= 44, YearFounded = 1818},
-				new Company() { Id = 4, Country = "Canada", Name = "Coca-Cola", NumberOfEmployees = 55, YearFounded = 1903},
+				new Company() { Id = 4, Country = "Canada", Name = "Coca-Cola", NumberOfEmployees = 33, YearFounded = 1903},
 			};
 			InsertRange (companies);
 			await SaveAsync();
@@ -32,7 +33,7 @@ namespace Engine.Tests.Repositories.Companies
 			var count = await GetCountAsync();
 			Assert.AreEqual(5, count);
 
-			var newComapny = (await Get(companyId)) as Company;
+			var newComapny = (await GetEntity(companyId)) as Company;
 			Assert.IsNotNull(newComapny);
 			AreEqualByJson(company, newComapny);
 		}
@@ -47,7 +48,7 @@ namespace Engine.Tests.Repositories.Companies
 			var countAfter = await GetCountAsync();
 			Assert.AreEqual(countBefore - 1, countAfter);
 
-			var deletedCompany = await GetEntities().FirstOrDefaultAsync(u => (u as Company).Id == deletedId);
+			var deletedCompany = await GetEntity(deletedId);
 			Assert.IsNull(deletedCompany);
 		}
 
@@ -55,15 +56,61 @@ namespace Engine.Tests.Repositories.Companies
 		public async Task RemoveRow_CheckTableCondition() 
 		{
 			var row = 1;
-			var comapny = (await GetEntities().ToListAsync())[row] as Company;
+			var comapny = (await GetEntities())[row] as Company;
 			var countBefore = await GetCountAsync();
 			await DeleteRow(row);
 			await SaveAsync();
 			var countAfter = await GetCountAsync();
 			Assert.AreEqual(countBefore - 1, countAfter);
 
-			var removed= await GetEntities().FirstOrDefaultAsync(u => (u as Company).Id == comapny.Id);
+			var removed = await GetEntity(comapny.Id);
 			Assert.IsNull(removed);
+		}
+
+		[Test]
+		public async Task FilterBy_CheckResult()
+		{
+			var results = await FilterBy("Country", new List<string> { "USA" });
+			Assert.AreEqual(1, results.Count);
+			foreach (var r in results)
+			{
+				var company = r as Company;
+				Assert.AreEqual("USA", company.Country);
+			}
+
+			results = await FilterBy("Name", new List<string> { "Pepsi" });
+			Assert.AreEqual(1, results.Count);
+			foreach (var r in results)
+			{
+				var company = r as Company;
+				Assert.AreEqual("Pepsi", company.Name);
+			}
+
+			results = await FilterBy("NumberOfEmployees", new List<string> { "33" });
+			Assert.AreEqual(2, results.Count);
+			foreach (var r in results)
+			{
+				var company = r as Company;
+				Assert.AreEqual(33, company.NumberOfEmployees);
+			}
+
+			results = await FilterBy("YearFounded", new List<string> { "1818", "1933" });
+			Assert.AreEqual(2, results.Count);
+			foreach (var r in results)
+			{
+				var company = r as Company;
+
+				Assert.IsTrue(company.YearFounded == 1818 || company.YearFounded == 1933);
+			}
+
+			results = await FilterBy("id", new List<string> { "2", "3" });
+			Assert.AreEqual(2, results.Count);
+			foreach (var r in results)
+			{
+				var company = r as Company;
+
+				Assert.IsTrue(company.Id == 2 || company.Id == 3);
+			}
 		}
 
 		public static void AreEqualByJson(object expected, object actual)

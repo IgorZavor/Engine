@@ -1,6 +1,6 @@
 ﻿namespace Engine.DAL.Repositories.Users
 {
-	public enum Column 
+	public enum Columns
 	{
 		Id,
 		Name,

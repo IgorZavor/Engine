@@ -1,4 +1,4 @@
-﻿namespace Engine.Enums
+﻿namespace Engine
 {
 	public enum Tables
 	{
