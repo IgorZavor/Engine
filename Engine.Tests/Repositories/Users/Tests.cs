@@ -11,7 +11,7 @@ namespace Engine.Tests.Repositories.Users
 	public class Tests: UsersTestRepository
 	{
 		[SetUp]
-		public async Task SetUp() 
+		public void SetUp() 
 		{
 			var users = new List<User> { 
 				new User() { Id = 1, Age = 32, Country = "USA", Name = "James", Surname = "Milner" },
@@ -20,7 +20,24 @@ namespace Engine.Tests.Repositories.Users
 				new User() { Id = 4, Age = 69, Country = "Canada", Name = "Johny1", Surname = "Jackson1" },
 			};
 			InsertRange (users);
-			await SaveAsync();
+			SaveAsync();
+		}
+
+		[OneTimeTearDown]
+		public void OneTimeTearDown() 
+		{
+			Dispose(true);
+		}
+
+		[TearDown]
+		public async Task TearDown()
+		{
+			var count = await GetCountAsync();
+			for (var i = 0; i < count; i++)
+			{
+				await DeleteRow(0);
+				await SaveAsync();
+			}
 		}
 
 		[Test]

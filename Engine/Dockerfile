@@ -8,6 +8,7 @@ FROM mcr.microsoft.com/dotnet/sdk:3.1 AS build
 WORKDIR /src
 COPY ["Engine/Engine.csproj", "Engine/"]
 COPY ["Engine.DAL/Engine.DAL.csproj", "Engine.DAL/"]
+COPY Engine/engine.db /app/publish/
 RUN dotnet restore "Engine/Engine.csproj"
 COPY . .
 WORKDIR "/src/Engine"

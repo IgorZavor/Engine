@@ -17,9 +17,18 @@ namespace Engine.Tests.Repositories.Logs
 					.Options;
 			return options;
 		}
+
 		public LogsTestRepository() : base(new EngineContext(GetOptions()))
         {
 			_context.Database.EnsureCreated();
 		}
-    }
+
+		public void Dispose(bool disposeBase = false)
+		{
+			if (disposeBase)
+			{
+				base.Dispose();
+			}
+		}
+	}
 }

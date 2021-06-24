@@ -23,8 +23,12 @@ namespace Engine.Services.WorkingServices.Companies
 		public  CompaniesTestService(): base(GetRepo(), GetLogger()) {
 		}
 
-		public void Dispose()
+		public void Dispose(bool disposeBase = false)
 		{
+			if (disposeBase)
+			{
+				base.Dispose();
+			}
 		}
 	}
 }

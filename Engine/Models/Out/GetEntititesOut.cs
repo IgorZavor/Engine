@@ -6,5 +6,6 @@ namespace Engine.Models.Out
 	public class GetEntititesOut: ResultOut
 	{
 		public List<object> Entities { get; set; }
+		public string Table { get; set; }
 	}
 }

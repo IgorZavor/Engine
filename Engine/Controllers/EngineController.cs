@@ -49,17 +49,17 @@ namespace Engine.Controllers
 				repositoryService = resolver(table);
 				await repositoryService.Generate(model.Count);
 				var end = DateTime.Now;
-				return new JsonResult(new ResultOut { Message = $"Generation has done successfully. Generation time is {end - start}", Error = false });
+				return new JsonResult(new ResultOut { Message = $"Generation for {model.Table} table has done successfully. Generation time is {end - start}", Error = false });
 			}
 			catch (ArgumentException ex)
 			{
-				var message = $"Generation has been failed.  {model.Table} table is not exist. Exception: " + ex;
+				var message = $"Generation has been failed. {model.Table} table is not exist. Exception: " + ex;
 				_logger.LogError(message);
 				return new JsonResult(new ResultOut { Message = message, Error = true });
 			}
 			catch (Exception ex)
 			{
-				var message = "Generation has been failed. Exception: " + ex;
+				var message = $"Generation for {model.Table} has been failed. Exception: " + ex;
 				_logger.LogError(message);
 				return new JsonResult(new ResultOut { Message = message, Error = true });
 			}
@@ -87,13 +87,13 @@ namespace Engine.Controllers
 			}
 			catch (ArgumentException ex)
 			{
-				var message = $"Generation has been failed.  {model.Table} table is not exist. Exception: " + ex;
+				var message = $"{model.Table} table cleaning has been failed. table is not exist. Exception: " + ex;
 				_logger.LogError(message);
 				return new JsonResult(new ResultOut { Message = message, Error = true });
 			}
 			catch (Exception ex)
 			{
-				var message = "Cleaning has been failed. Exception: " + ex;
+				var message = $"{model.Table} table cleaning has been failed. Exception: " + ex;
 				_logger.LogError(message);
 				return new JsonResult (new ResultOut { Message = message, Error = true });
 			}
@@ -122,13 +122,13 @@ namespace Engine.Controllers
 			}
 			catch (ArgumentException ex)
 			{
-				var message = "Calculation is failed. Table or column is not exist. Exception: " + ex;
+				var message = $"Calculation for {model.Table} table has been failed. Table or column is not exist. Exception: " + ex;
 				_logger.LogError(message);
 				return new JsonResult(new SumOut { Message = message, Error = true, Sum = -1 });
 			}
 			catch (Exception ex)
 			{
-				var message = "Calculation is failed. Exception: " + ex;
+				var message = $"Calculation for {model.Table} table has been failed. Exception: " + ex;
 				_logger.LogError(message);
 				return new JsonResult(new SumOut { Message = message, Error = true, Sum = -1 });
 			}
@@ -170,7 +170,7 @@ namespace Engine.Controllers
 			}
 		}
 
-		[HttpGet, Route("getAllEntities")]
+		[HttpPost, Route("getAllEntities")]
 		public async Task<ActionResult> GetAllEntities(GetEntitiesModel model, [FromServices] ServiceResolver serviceResolver) 
 		{
 			IBaseService repositoryService = null;
@@ -179,7 +179,7 @@ namespace Engine.Controllers
 				var table = (Tables)Enum.Parse(typeof(Tables), model.Table, true);
 				repositoryService = serviceResolver(table);
 				var entities = await repositoryService.GetEntities();
-				return new JsonResult(new GetEntititesOut { Message = "Success", Error = false, Entities = entities });
+				return new JsonResult(new GetEntititesOut { Message = "Success", Error = false, Entities = entities, Table = model.Table });
 			}
 			catch (ArgumentException ex)
 			{

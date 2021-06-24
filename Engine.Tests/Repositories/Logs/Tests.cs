@@ -11,7 +11,7 @@ namespace Engine.Tests.Repositories.Logs
 	public class Tests: LogsTestRepository
 	{
 		[SetUp]
-		public async Task SetUp() {
+		public void SetUp() {
 			var data = new List<Log> { 
 				new Log() { Id = 1,  Author="Jack", DateTime="10.02.2021",Filter="", Sum = 10},
 				new Log() { Id = 2, Author = "Sam",  DateTime="03.02.2021", Filter="filter2", Sum = 10},
@@ -19,22 +19,40 @@ namespace Engine.Tests.Repositories.Logs
 				new Log() { Id = 4, Author = "July",  DateTime="04.06.2021", Filter="", Sum = 10},
 			};
 			InsertRange (data);
-			await SaveAsync();
+			SaveAsync();
+		}
+
+		[OneTimeTearDown]
+		public void OneTimeTearDown()
+		{
+			Dispose(true);
+		}
+
+
+		[TearDown]
+		public async Task TearDown()
+		{
+			var count = await GetCountAsync();
+			for (var i = 0; i < count; i++)
+			{
+				await DeleteRow(0);
+				await SaveAsync();
+			}
 		}
 
 		[Test]
 		public async Task AddLog_CheckNewEntity()
 		{
 			var logsCount = await GetCountAsync();
-			var log = new Log() { Id = logsCount + 1,  };
+			var log = new Log() { Id = 5, Author = "July", DateTime = "04.06.2021", Filter = "", Sum = 12 };
 			Insert(log);
 			await SaveAsync();
 			var count = await GetCountAsync();
 			Assert.AreEqual(5, count);
 
-			var newComapny = (await GetEntity(logsCount)) as Log;
-			Assert.IsNotNull(newComapny);
-			AreEqualByJson(log, newComapny);
+			var newLog = (await GetEntity(5)) as Log;
+			Assert.IsNotNull(newLog);
+			AreEqualByJson(log, newLog);
 		}
 
 		[Test]
@@ -47,8 +65,8 @@ namespace Engine.Tests.Repositories.Logs
 			var countAfter = await GetCountAsync();
 			Assert.AreEqual(countBefore - 1, countAfter);
 
-			var deletedCompany = await GetEntity(deletedId);
-			Assert.IsNull(deletedCompany);
+			var deletedLog= await GetEntity(deletedId);
+			Assert.IsNull(deletedLog);
 		}
 
 		[Test]

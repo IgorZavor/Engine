@@ -3,19 +3,16 @@ using NUnit.Framework;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Engine.DAL.Models;
-using System.Linq;
 using Engine.Cache;
 using Newtonsoft.Json;
 using Engine.Models.Out;
 using Microsoft.AspNetCore.Mvc;
-using System.Data;
 using Engine.Services.WorkingServices;
 using Engine.Services.WorkingServices.Companies;
 using Engine.Services.WorkingServices.Users;
 using Engine.Services.LogsServices.Logs;
 using Engine.Services;
 using Engine.Services.LogsServices;
-using Engine.Tests.Helpers;
 
 namespace Engine.Tests.Controllers
 {
@@ -164,11 +161,11 @@ namespace Engine.Tests.Controllers
 		}
 
 		[Test]
-		[TestCase("Country", "NumberOfEmployees", "USA")]
-		[TestCase("Name", "YearFounded", "Corporation")]
-		[TestCase("NumberOfEmployees", "NumberOfEmployees", "100")]
-		[TestCase("id", "NumberOfEmployees", "2")]
-		public async Task Companies_FilterAndSum_CheckSum(string filterColumn, string sumColumn, string filterValue)
+		[TestCase("Country", "NumberOfEmployees", "USA", 1010)]
+		[TestCase("Name", "YearFounded", "Corporation", 4041)]
+		[TestCase("NumberOfEmployees", "NumberOfEmployees", "100", 100)]
+		[TestCase("id", "NumberOfEmployees", "2", 100)]
+		public async Task Companies_FilterAndSum_CheckSum(string filterColumn, string sumColumn, string filterValue, int expected)
 		{
 			var repo = (ServiceResolver(Tables.Companies) as WorkingBaseService).Repository;
 			var companies = new List<Company>()
@@ -181,8 +178,6 @@ namespace Engine.Tests.Controllers
 
 			repo.InsertRange(companies);
 			await repo.SaveAsync();
-			IEnumerable<Company> filteredCompanies = FilterHelper.GetFilteredCompanies(companies, filterColumn, new List<string>() { filterValue });
-			var expected = SumHelper.GetCompaniesSum(filteredCompanies, sumColumn);
 
 			var model = new FilterByModel() {
 				Table= "Companies", 
@@ -238,12 +233,12 @@ namespace Engine.Tests.Controllers
 
 
 		[Test]
-		[TestCase("Country", "id", "Brazil")]
-		[TestCase("Name", "age", "Mat")]
-		[TestCase("Surname", "age", "Halpert1", "Halpert2")]
-		[TestCase("Age", "age", "42", "52")]
-		[TestCase("Id", "age", "2", "3")]
-		public async Task Users_FilterAndSum_CheckSumAndMemoryCacheValue(string filterColumn, string sumColumn, string filterValue1, string filterValue2 = "")
+		[TestCase("Country", "id", "Brazil", 4)]
+		[TestCase("Name", "age", "Mat", 84)]
+		[TestCase("Surname", "age", "Halpert1", 42)]
+		[TestCase("Age", "age", "42", 42)]
+		[TestCase("Id", "age", "2", 42)]
+		public async Task Users_FilterAndSum_CheckSumAndMemoryCacheValue(string filterColumn, string sumColumn, string filterValue1, int expected)
 		{
 			var repo = (ServiceResolver(Tables.Users) as WorkingBaseService).Repository;
 			var users = new List<User>()
@@ -256,14 +251,11 @@ namespace Engine.Tests.Controllers
 			repo.InsertRange(users);
 			await repo.SaveAsync();
 
-			IEnumerable<User> filtered = FilterHelper.GetFilteredUsers(users, filterColumn, new List<string>() { filterValue1, filterValue2 });
-			var expected = SumHelper.GetUsersSum(filtered, sumColumn);
-
 			var model = new FilterByModel() { 
 				Table ="Users",
 				Author = "Sam", FilterColumn = filterColumn,
 				SummaryColumn = sumColumn, 
-				Filters = new List<Filter> { new Filter { Value = filterValue1 }, new Filter { Value = filterValue2 } } 
+				Filters = new List<Filter> { new Filter { Value = filterValue1 } } 
 			};
 
 			var result = ((await FilterAndSum(model, ServiceResolver)) as JsonResult);
@@ -314,12 +306,12 @@ namespace Engine.Tests.Controllers
 
 
 		[Test]
-		[TestCase("Filter", "id", "filter1")]
-		[TestCase("Author", "sum", "Samanta")]
-		[TestCase("DateTime", "sum", "03.03.2021")]
-		[TestCase("Sum", "id", "10")]
-		[TestCase("id", "id", "1")]
-		public async Task Logs_FilterAndSum_CheckSumAndMemoryCacheValue(string filterColumn, string sumColumn, string filterValue)
+		[TestCase("Filter", "id", "filter1", 1)]
+		[TestCase("Author", "sum", "Samanta", 20)]
+		[TestCase("DateTime", "sum", "03.03.2021", 10)]
+		[TestCase("Sum", "id", "10", 3)]
+		[TestCase("id", "id", "1", 1)]
+		public async Task Logs_FilterAndSum_CheckSumAndMemoryCacheValue(string filterColumn, string sumColumn, string filterValue, int expected)
 		{
 			var repo = (ServiceResolver(Tables.Logs) as LogsServiceBase).Repository;
 			var data = new List<Log> {
@@ -330,10 +322,6 @@ namespace Engine.Tests.Controllers
 			};
 			repo.InsertRange(data);
 			await repo.SaveAsync();
-
-			IEnumerable<Log> filtered = FilterHelper.GetFilteredLogs(data, filterColumn, new List<string> { filterValue });
-
-			var expected = SumHelper.GetLogsSum(filtered, sumColumn);
 
 			var model = new FilterByModel() { 
 				Table = "Logs", 

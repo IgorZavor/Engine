@@ -24,8 +24,12 @@ namespace Engine.Tests.Repositories.Users
 			_context.Database.EnsureCreated();
 		}
 
-		public void Dispose() 
+		public void Dispose(bool disposeBase = false)
 		{
+			if (disposeBase)
+			{
+				base.Dispose();
+			}
 		}
 	}
 }

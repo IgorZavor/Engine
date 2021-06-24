@@ -12,7 +12,7 @@ namespace Engine.Tests.Repositories.Companies
 	public class Tests: CompaniesTestRepository
 	{
 		[SetUp]
-		public async Task SetUp() {
+		public void SetUp() {
 			var companies = new List<Company> { 
 				new Company() { Id = 1, Country = "USA", Name = "James Inc.",  NumberOfEmployees = 22, YearFounded = 1920   },
 				new Company() { Id = 2, Country = "Canada", Name = "Johny Industry", NumberOfEmployees = 33, YearFounded = 1933},
@@ -20,20 +20,39 @@ namespace Engine.Tests.Repositories.Companies
 				new Company() { Id = 4, Country = "Canada", Name = "Coca-Cola", NumberOfEmployees = 33, YearFounded = 1903},
 			};
 			InsertRange (companies);
-			await SaveAsync();
+			SaveAsync();
 		}
+
+		[OneTimeTearDown]
+		public void OneTimeTearDown()
+		{
+			Dispose(true);
+		}
+
+		[TearDown]
+		public async Task TearDown()
+		{
+			var count = await GetCountAsync();
+			for (var i = 0; i < count; i++)
+			{
+				await DeleteRow(0);
+				await SaveAsync();
+			}
+		}
+
+
 
 		[Test]
 		public async Task AddCompany_CheckNewEntity()
 		{
 			var companyId = await GetCountAsync();
-			var company = new Company() { Id = companyId + 1, Country = "Estonia", Name = "Richard's Paper", NumberOfEmployees = 33, YearFounded = 1919 };
+			var company = new Company() { Id = companyId + 1, Country = "Estonia", Name = "Richard's Paper", NumberOfEmployees = 12312, YearFounded = 1919 };
 			Insert(company);
 			await SaveAsync();
 			var count = await GetCountAsync();
 			Assert.AreEqual(5, count);
 
-			var newComapny = (await GetEntity(companyId)) as Company;
+			var newComapny = (await GetEntity(companyId + 1)) as Company;
 			Assert.IsNotNull(newComapny);
 			AreEqualByJson(company, newComapny);
 		}
