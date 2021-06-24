@@ -1,12 +1,23 @@
 # Engine
 
-Simple service which controlled by xml requests.
+Simple service which controlled by xml requests. The project includes sqlite database inside. The database has 3 tables: 
+**Users**:
+
+
+
+**Compmanies**,
+**Logs**
+iThere are the next methods
 
 DOCKER IMAGE:
 docker pull zavordocker/engine
 
-HOW TO RUN:
+FAST IMPLEMENTATION:
 docker run -it -p 43111:80 zavordocker/engine
 
 HOW TO USE:
-Open 
+PostMan:
+
+
+
+Swagger:
