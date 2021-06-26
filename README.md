@@ -129,30 +129,30 @@ docker run -lt -p 51000:80 zavordocker/engine
 
 <h3>HOW TO USE: </h3>
 <i><b>1. PostMan:</b></i><br>
-<b>1.1 Generate</b><br>
-Type: Post <br>
-URL: http://localhost:51000/api/engine/generate <br>
-Body Type: xml <br><br>
+&nbsp;&nbsp;<b>1.1 Generate</b><br>
+&nbsp;&nbsp;Type: Post <br>
+&nbsp;&nbsp;URL: http://localhost:51000/api/engine/generate <br>
+&nbsp;&nbsp;Body Type: xml <br><br>
 
-<b>1.2 Clear</b><br>
-Type: Delete <br>
-URL: http://localhost:51000/api/engine/clear <br>
-Body Type: xml <br>
+&nbsp;&nbsp;<b>1.2 Clear</b><br>
+&nbsp;&nbsp;Type: Delete <br>
+&nbsp;&nbsp;URL: http://localhost:51000/api/engine/clear <br>
+&nbsp;&nbsp;Body Type: xml <br>
 
-<b>1.3 GetAllEntities</b><br>
-Type: Post <br>
-URL: http://localhost:51000/api/engine/getAllEntities <br>
-Body Type: xml <br> <br>
+&nbsp;&nbsp;<b>1.3 GetAllEntities</b><br>
+&nbsp;&nbsp;Type: Post <br>
+&nbsp;&nbsp;URL: http://localhost:51000/api/engine/getAllEntities <br>
+&nbsp;&nbsp;Body Type: xml <br> <br>
 
-<b>1.4 FilterAndSum</b><br>
-Type: Post <br>
-URL: http://localhost:51000/api/engine/filterAndSum <br>
-Body Type: xml <br> <br>
+&nbsp;&nbsp;<b>1.4 FilterAndSum</b><br>
+&nbsp;&nbsp;Type: Post <br>
+&nbsp;&nbsp;URL: http://localhost:51000/api/engine/filterAndSum <br>
+&nbsp;&nbsp;Body Type: xml <br> <br>
 
-<b>1.5 WriteSumToLogs</b><br>
-Type: Post <br>
-URL: http://localhost:51000/api/engine/writeSumToLogs
+&nbsp;&nbsp;<b>1.5 WriteSumToLogs</b><br>
+&nbsp;&nbsp;Type: Post <br>
+&nbsp;&nbsp;URL: http://localhost:51000/api/engine/writeSumToLogs
 
 <i><b>2. Swagger:</b></i><br>
-URL: http://localhost:51000/swagger/index.html<br>
-Choose a method, that you want to test and put correspondig xml-model.
+&nbsp;&nbsp;URL: http://localhost:51000/swagger/index.html<br>
+&nbsp;&nbsp;Choose a method, that you want to test and put correspondig xml-model.
