@@ -13,6 +13,7 @@ using Engine.Services.WorkingServices.Users;
 using Engine.Services.LogsServices.Logs;
 using Engine.Services;
 using Engine.Services.LogsServices;
+using Engine.DAL.Repositories;
 
 namespace Engine.Tests.Controllers
 {
@@ -64,7 +65,7 @@ namespace Engine.Tests.Controllers
 			Assert.IsFalse(result.Error);
 			var rowCount = await _workingService.Repository.GetCountAsync();
 			Assert.IsTrue(rowCount == count);
-			Dispose();
+			
 		}
 
 		[Test]
@@ -104,7 +105,7 @@ namespace Engine.Tests.Controllers
 			Assert.IsFalse(result.Error);
 			rowsCount = await service.Repository.GetCountAsync();
 			Assert.IsTrue(rowsCount == 0);
-			Dispose();
+			
 		}
 
 		[Test]
@@ -131,7 +132,7 @@ namespace Engine.Tests.Controllers
 			await Clear(clearModel, ServiceResolver);
 			rowsCount = await service.Repository.GetCountAsync(); ;
 			Assert.IsTrue(rowsCount == 0);
-			Dispose();
+			
 		}
 
 		[Test]
@@ -157,27 +158,18 @@ namespace Engine.Tests.Controllers
 			await Clear(clearModel, ServiceResolver);
 			rowsCount = await service.Repository.GetCountAsync(); ;
 			Assert.IsTrue(rowsCount == 0);
-			Dispose();
+			
 		}
 
 		[Test]
-		[TestCase("Country", "NumberOfEmployees", "USA", 1010)]
+		[TestCase("Country", "NumberOfEmployees", "USA", 1252)]
 		[TestCase("Name", "YearFounded", "Corporation", 4041)]
 		[TestCase("NumberOfEmployees", "NumberOfEmployees", "100", 100)]
 		[TestCase("id", "NumberOfEmployees", "2", 100)]
 		public async Task Companies_FilterAndSum_CheckSum(string filterColumn, string sumColumn, string filterValue, int expected)
 		{
 			var repo = (ServiceResolver(Tables.Companies) as WorkingBaseService).Repository;
-			var companies = new List<Company>()
-			{
-				new Company{ Id= 1, YearFounded=1940, Country="USA", Name="Corporation2", NumberOfEmployees= 1010 },
-				new Company{ Id= 2, YearFounded=1902, Country="Russia", Name="Corporation3", NumberOfEmployees=100 },
-				new Company{ Id= 3, YearFounded=2021, Country="USA", Name="Corporation", NumberOfEmployees=242 },
-				new Company{ Id= 4, YearFounded=2020, Country="Canada", Name="Corporation", NumberOfEmployees=392 }
-			};
-
-			repo.InsertRange(companies);
-			await repo.SaveAsync();
+			await FillCompanies(repo);
 
 			var model = new FilterByModel() {
 				Table= "Companies", 
@@ -186,17 +178,35 @@ namespace Engine.Tests.Controllers
 				SummaryColumn = sumColumn, 
 				Filters = new List<Filter> { new Filter { Value = filterValue } } 
 			};
-			var result = (await FilterAndSum(model, ServiceResolver)).ToString();
-			var deserialized = JsonConvert.DeserializeObject<SumOut>(result ?? "");
-			Assert.IsFalse(deserialized.Error);
-			Assert.AreEqual(expected, deserialized.Sum);
+			var result = (await FilterAndSum(model, ServiceResolver)) as JsonResult;
+			var sumOut = result.Value as SumOut;
+			Assert.IsFalse(sumOut. Error);
+			Assert.AreEqual(expected, sumOut.Sum);
 			var cacheModel = TryGetValueFromCache(CacheKeys.FilterBy);
 			Assert.AreEqual(model.Author, cacheModel.Author);
 			Assert.AreEqual(GetFilter(model.FilterColumn, model.Filters), cacheModel.Filter);
 			Assert.AreEqual(expected, cacheModel.Sum);
-			Dispose();
+			
 		}
 
+
+		private async Task FillCompanies(IRepository repo) 
+		{
+			var count = await repo.GetCountAsync();
+			if (count == 0)
+			{
+				var companies = new List<Company>()
+			{
+				new Company{ Id= 1, YearFounded=1940, Country="USA", Name="Corporation2", NumberOfEmployees= 1010 },
+				new Company{ Id= 2, YearFounded=1902, Country="Russia", Name="Corporation3", NumberOfEmployees=100 },
+				new Company{ Id= 3, YearFounded=2021, Country="USA", Name="Corporation", NumberOfEmployees=242 },
+				new Company{ Id= 4, YearFounded=2020, Country="Canada", Name="Corporation", NumberOfEmployees=392 }
+			};
+
+				repo.InsertRange(companies);
+				await repo.SaveAsync();
+			}
+		}
 
 		[Test]
 		[TestCase("Country2", "NumberOfEmployees", "USA")]
@@ -206,16 +216,7 @@ namespace Engine.Tests.Controllers
 		public async Task Companies_FilterAndSumError_CheckResult(string filterColumn, string sumColumn, string filterValue)
 		{
 			var repo = (ServiceResolver(Tables.Companies) as WorkingBaseService).Repository;
-			var companies = new List<Company>()
-			{
-				new Company{ Id= 1, YearFounded=1940, Country="USA", Name="Corporation2", NumberOfEmployees= 1010 },
-				new Company{ Id= 2, YearFounded=1902, Country="Russia", Name="Corporation3", NumberOfEmployees=100 },
-				new Company{ Id= 3, YearFounded=2021, Country="USA", Name="Corporation", NumberOfEmployees=242 },
-				new Company{ Id= 4, YearFounded=2020, Country="Canada", Name="Corporation", NumberOfEmployees=392 }
-			};
-
-			repo.InsertRange(companies);
-			await repo.SaveAsync();
+			await FillCompanies(repo);
 
 			var model = new FilterByModel()
 			{
@@ -228,7 +229,6 @@ namespace Engine.Tests.Controllers
 			var result = (await FilterAndSum(model, ServiceResolver));
 			var sumOut = (result as JsonResult).Value as SumOut;
 			Assert.IsTrue(sumOut.Error);
-			Dispose();
 		}
 
 
@@ -241,15 +241,7 @@ namespace Engine.Tests.Controllers
 		public async Task Users_FilterAndSum_CheckSumAndMemoryCacheValue(string filterColumn, string sumColumn, string filterValue1, int expected)
 		{
 			var repo = (ServiceResolver(Tables.Users) as WorkingBaseService).Repository;
-			var users = new List<User>()
-			{
-				new User{ Id= 1, Age=22, Country="Brazil", Name="Jim", Surname="Halpert" },
-				new User{ Id= 2, Age=42, Country="Russia", Name="Scott", Surname="Halpert1" },
-				new User{ Id= 3, Age=32, Country="Brazil", Name="Mat", Surname="Halpert2" },
-				new User{ Id= 4, Age=52, Country="Canada", Name="Mat", Surname="Halpert3" }
-			};
-			repo.InsertRange(users);
-			await repo.SaveAsync();
+			await FillUsers(repo);
 
 			var model = new FilterByModel() { 
 				Table ="Users",
@@ -266,7 +258,7 @@ namespace Engine.Tests.Controllers
 			Assert.AreEqual(model.Author, cacheModel.Author);
 			Assert.AreEqual(GetFilter(model.FilterColumn, model.Filters), cacheModel.Filter);
 			Assert.AreEqual(expected, cacheModel.Sum);
-			Dispose();
+			
 		}
 
 		[Test]
@@ -278,15 +270,7 @@ namespace Engine.Tests.Controllers
 		public async Task Users_FilterAndSumError_CheckResult(string filterColumn, string sumColumn, string filterValue1)
 		{
 			var repo = (ServiceResolver(Tables.Users) as WorkingBaseService).Repository;
-			var users = new List<User>()
-			{
-				new User{ Id= 1, Age=22, Country="Brazil", Name="Jim", Surname="Halpert" },
-				new User{ Id= 2, Age=42, Country="Russia", Name="Scott", Surname="Halpert1" },
-				new User{ Id= 3, Age=32, Country="Brazil", Name="Mat", Surname="Halpert2" },
-				new User{ Id= 4, Age=52, Country="Canada", Name="Mat", Surname="Halpert3" }
-			};
-			repo.InsertRange(users);
-			await repo.SaveAsync();
+			await FillUsers(repo);
 
 
 			var model = new FilterByModel()
@@ -301,27 +285,36 @@ namespace Engine.Tests.Controllers
 			var result = (await FilterAndSum(model, ServiceResolver));
 			var sumOut = (result as JsonResult).Value as SumOut;
 			Assert.IsTrue(sumOut.Error);
-			Dispose();
 		}
 
+        private async Task FillUsers(IRepository repo)
+        {
+            var count = await repo.GetCountAsync();
+            if (count == 0)
+            {
+                var users = new List<User>()
+            {
+                new User{ Id= 1, Age=22, Country="Brazil", Name="Jim", Surname="Halpert" },
+                new User{ Id= 2, Age=42, Country="Russia", Name="Scott", Surname="Halpert1" },
+                new User{ Id= 3, Age=32, Country="Brazil", Name="Mat", Surname="Halpert2" },
+                new User{ Id= 4, Age=52, Country="Canada", Name="Mat", Surname="Halpert3" }
+            };
+                repo.InsertRange(users);
+                await repo.SaveAsync();
+            }
+        }
 
-		[Test]
+
+        [Test]
 		[TestCase("Filter", "id", "filter1", 1)]
-		[TestCase("Author", "sum", "Samanta", 20)]
+		[TestCase("Author", "sum", "Samanta", 10)]
 		[TestCase("DateTime", "sum", "03.03.2021", 10)]
-		[TestCase("Sum", "id", "10", 3)]
+		[TestCase("Sum", "id", "10", 4)]
 		[TestCase("id", "id", "1", 1)]
 		public async Task Logs_FilterAndSum_CheckSumAndMemoryCacheValue(string filterColumn, string sumColumn, string filterValue, int expected)
 		{
 			var repo = (ServiceResolver(Tables.Logs) as LogsServiceBase).Repository;
-			var data = new List<Log> {
-				new Log() { Id = 1,  Author="Jack", DateTime="10.02.2021",Filter="filter1", Sum = 10},
-				new Log() { Id = 2, Author = "Sam",  DateTime="03.02.2021", Filter="", Sum = 20},
-				new Log() { Id = 3, Author = "Samanta", DateTime="03.03.2021", Filter="", Sum = 10},
-				new Log() { Id = 4, Author = "July",  DateTime="04.06.2021", Filter="filter2", Sum = 22},
-			};
-			repo.InsertRange(data);
-			await repo.SaveAsync();
+			await FillLogs(repo);
 
 			var model = new FilterByModel() { 
 				Table = "Logs", 
@@ -337,7 +330,6 @@ namespace Engine.Tests.Controllers
 			Assert.AreEqual(model.Author, cacheModel.Author);
 			Assert.AreEqual(GetFilter(model.FilterColumn, model.Filters), cacheModel.Filter);
 			Assert.AreEqual(expected, cacheModel.Sum);
-			Dispose();
 		}
 
 		[Test]
@@ -349,14 +341,7 @@ namespace Engine.Tests.Controllers
 		public async Task Logs_FilterAndSumError_CheckResult(string filterColumn, string sumColumn, string filterValue)
 		{
 			var repo = (ServiceResolver(Tables.Logs) as LogsServiceBase).Repository;
-			var data = new List<Log> {
-				new Log() { Id = 1,  Author="Jack", DateTime="10.02.2021",Filter="filter1", Sum = 10},
-				new Log() { Id = 2, Author = "Sam",  DateTime="03.02.2021", Filter="", Sum = 20},
-				new Log() { Id = 3, Author = "Samanta", DateTime="03.03.2021", Filter="", Sum = 10},
-				new Log() { Id = 4, Author = "July",  DateTime="04.06.2021", Filter="filter2", Sum = 22},
-			};
-			repo.InsertRange(data);
-			await repo.SaveAsync();
+			await FillLogs(repo);
 
 			var model = new FilterByModel()
 			{
@@ -370,9 +355,25 @@ namespace Engine.Tests.Controllers
 			var result = (await FilterAndSum(model, ServiceResolver));
 			var sumOut = (result as JsonResult).Value as SumOut;
 			Assert.IsTrue(sumOut.Error);
-			Dispose();
 		}
 
+		private async Task FillLogs(IRepository repo) 
+		{
+			var count = await repo.GetCountAsync();
+			if (count == 0)
+			{
+				var data = new List<Log> {
+				new Log() { Id = 1,  Author="Jack", DateTime="10.02.2021",Filter="filter1", Sum = 10},
+				new Log() { Id = 2, Author = "Sam",  DateTime="03.02.2021", Filter="", Sum = 20},
+				new Log() { Id = 3, Author = "Samanta", DateTime="03.03.2021", Filter="", Sum = 10},
+				new Log() { Id = 4, Author = "July",  DateTime="04.06.2021", Filter="filter2", Sum = 22},
+			};
+				repo.InsertRange(data);
+				await repo.SaveAsync();
+			}
+		}
+
+		[OneTimeTearDown]
 		public  void Dispose()
 		{
 			if (_workingService != null)

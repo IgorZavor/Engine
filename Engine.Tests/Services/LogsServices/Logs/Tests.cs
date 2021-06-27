@@ -57,7 +57,7 @@ namespace Engine.Services.LogsServices.Logs
 		[Test]
 		[TestCase("Author", "id", "dda", 0)]
 		[TestCase("Id", "sum", "1", 10)]
-		[TestCase("DateTime", "id", "03.02.2021")]
+		[TestCase("DateTime", "id", "03.02.2021", 2 )]
 		[TestCase("Filter", "sum", "filter1", 30)]
 		[TestCase("Sum", "id", "10", 5)]
 		public async Task FilterBy_CheckSum(string filterColumn, string sumColumn, string filterValue, int expected)

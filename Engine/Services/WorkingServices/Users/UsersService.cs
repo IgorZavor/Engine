@@ -52,7 +52,7 @@ namespace Engine.Services.WorkingServices.Users
 				case Columns.Id:
 					return ((User)entity).Id;
 				default:
-					throw new InvalidOperationException($"{TableName} table doesn't contain the {column} column or summation is not supported for {column} column ");
+					throw new ArgumentException($"{TableName} table doesn't contain the {column} column or summation is not supported for {column} column ");
 			}
 			
 		}

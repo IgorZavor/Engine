@@ -25,5 +25,13 @@ namespace Engine.Services.LogsServices.Logs
 		public void Dispose()
 		{
 		}
+
+		public void Dispose(bool disposeBase = false)
+		{
+			if (disposeBase)
+			{
+				base.Dispose();
+			}
+		}
 	}
 }

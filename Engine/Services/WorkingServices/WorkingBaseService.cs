@@ -1,6 +1,7 @@
 ﻿using Engine.DAL.Repositories;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -102,6 +103,10 @@ namespace Engine.Services.WorkingServices
 		{
 			var mtx = new Mutex();
 			var sum = 0;
+			var exceptions = new ConcurrentQueue<Exception>();
+			var cts = new CancellationTokenSource();
+			var po = new ParallelOptions();
+			po.CancellationToken = cts.Token;
 			try
 			{
 				List<object> results = null;
@@ -109,23 +114,45 @@ namespace Engine.Services.WorkingServices
 				{
 					results = await GetEntities();
 				}
-				else 
+				else
 				{
 					results = await _repository.FilterBy(filterColumn, filterValues);
 				}
-				Parallel.For(0, results.Count, (int num) =>
+
+				_logger.LogInformation($"Calculation has been starting..");
+				Parallel.For(0, results.Count, po, (int num, ParallelLoopState state) =>
 				{
-					mtx.WaitOne();
-					sum += GetValue(results[num], sumColumn);
-					mtx.ReleaseMutex();
-					Thread.Sleep(100);
+					try
+					{
+						po.CancellationToken.ThrowIfCancellationRequested();
+						mtx.WaitOne();
+						sum += GetValue(results[num], sumColumn);
+						mtx.ReleaseMutex();
+						Thread.Sleep(100);
+					}
+					catch (ArgumentException ex)
+					{
+						cts.Cancel();
+						mtx.ReleaseMutex();
+						exceptions.Enqueue(ex);
+					}
 				});
 				_logger.LogInformation($"{filterColumn} column has been summed up.");
 			}
-			catch (Exception ex)
+			catch (OperationCanceledException ex)
+			{
+				_logger.LogInformation($"Calculation has been stopped..");
+			}
+			catch (ArgumentException ex)
 			{
 				throw ex;
 			}
+			finally 
+			{
+				cts.Dispose();
+			}
+			if (exceptions.Count > 0) throw new AggregateException(exceptions);
+
 			return sum;
 		}
 
