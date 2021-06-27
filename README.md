@@ -67,7 +67,7 @@ The database includes 3 tables:</p>
 <p>
 &lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>
 &lt;FilterBy&gt;<br>
-&nbsp;&nbsp;&lt;Authory&gt;Author Name&lt;/Author&gt;<br>
+&nbsp;&nbsp;&lt;Author&gt;Author Name&lt;/Author&gt;<br>
 &nbsp;&nbsp;&lt;Filters&gt;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&lt;Filter&gt;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Value&gt;Filter Value 1&lt;/Value&gt;<br>
@@ -89,7 +89,7 @@ The database includes 3 tables:</p>
 <p>
 &lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>
 &lt;FilterBy&gt;<br>
-&nbsp;&nbsp;&lt;Authory&gt;John&lt;/Author&gt;<br>
+&nbsp;&nbsp;&lt;Author&gt;John&lt;/Author&gt;<br>
 &nbsp;&nbsp;&lt;Filters&gt;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&lt;Filter&gt;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Value&gt;USA&lt;/Value&gt;<br>
