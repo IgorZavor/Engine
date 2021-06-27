@@ -87,7 +87,7 @@ namespace Engine.Controllers
 			}
 			catch (ArgumentException ex)
 			{
-				var message = $"Table cleaning of {model.Table}  has been failed. table is not exist. Exception: " + ex;
+				var message = $"Table cleaning of {model.Table}  has been failed. Table is not exist. Exception: " + ex;
 				_logger.LogError(message);
 				return new JsonResult(new ResultOut { Message = message, Error = true });
 			}
