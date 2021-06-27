@@ -78,7 +78,7 @@ The database includes 3 tables:</p>
 &nbsp;&nbsp;&lt;/Filters&gt;<br>
 &nbsp;&nbsp;&lt;Table&gt;Table Name&lt;/Table&gt;<br>
 &nbsp;&nbsp;&lt;FilterColumn>Filter Column Name&lt;/FilterColumn&gt;<br>
-&nbsp;&nbsp;&lt;SummaryColumn&gt;Summary Column Name&lt;/SummaryColumn&gt;<br>
+&nbsp;&nbsp;&lt;SummaryColumn&gt;Integer column name&lt;/SummaryColumn&gt;<br>
 &lt;/FilterBy&gt;<br>
 </p>
 <b><i>Api:</i></b><br>
