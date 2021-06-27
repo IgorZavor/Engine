@@ -29,7 +29,7 @@ The database includes 3 tables:</p>
 &lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>
 &lt;Generate&gt; <br>
 &nbsp;&nbsp;&lt;Table&gt;Table Name&lt;/Table&gt;<br>
-&nbsp;&nbsp;&lt;Count&rt;count&lt;/Count&gt;<br>
+&nbsp;&nbsp;&lt;Count&gt;count&lt;/Count&gt;<br>
 &lt;/Generate&gt;<br>
 </p>
 <b><i>Api:</i></b><br>
@@ -40,7 +40,7 @@ The database includes 3 tables:</p>
 &lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>
 &lt;Generate&gt; <br>
 &nbsp;&nbsp;&lt;Table&gt;Users&lt;/Table&gt;<br>
-&nbsp;&nbsp;&lt;Count&rt;10&lt;/Count&gt;<br>
+&nbsp;&nbsp;&lt;Count&gt;10&lt;/Count&gt;<br>
 &lt;/Generate&gt;<br>
 </p>
 
@@ -124,6 +124,7 @@ api/engine/writeSumToLogs
 &lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>
 &lt;Entities&gt;<br>
 &nbsp;&nbsp;&lt;Table&gt;Logs&lt;/Table&gt;<br>
+&lt;/Entities&gt;<br>
 </p>
 
 
