@@ -89,7 +89,7 @@ namespace Engine.Services.WorkingServices
 			try
 			{
 				var entites = await _repository.GetEntities();
-				_logger.LogInformation($"Getting entites is done");
+				_logger.LogInformation($"Getting entites has been done");
 				return entites;
 			}
 			catch (ArgumentNullException ex)

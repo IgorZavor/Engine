@@ -34,7 +34,7 @@ namespace Engine.Services.LogsServices
 			{
 				var rowsCount = await _repository.GetCountAsync();
 				_repository.AutoDetectChangesEnabled = false;
-				_logger.LogInformation($"Start clearing ${TableName}");
+				_logger.LogInformation($"Start clearing ${TableName} table");
 				Parallel.For(0, rowsCount, (int rowNum) =>
 				{
 					mtx.WaitOne();
@@ -44,7 +44,7 @@ namespace Engine.Services.LogsServices
 					Thread.Sleep(100);
 				});
 				await _repository.SaveAsync();
-				_logger.LogInformation($"clearing ${TableName} is done!");
+				_logger.LogInformation($"Clearing ${TableName} has been done!");
 			}
 			catch (Exception ex)
 			{
@@ -60,7 +60,7 @@ namespace Engine.Services.LogsServices
 			try
 			{
 				var entites = await _repository.GetEntities();
-				_logger.LogInformation($"Getting entites is done");
+				_logger.LogInformation($"Getting entites has been done");
 				return entites;
 			}
 			catch (Exception ex)

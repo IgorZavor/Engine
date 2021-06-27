@@ -49,11 +49,11 @@ namespace Engine.Controllers
 				repositoryService = resolver(table);
 				await repositoryService.Generate(model.Count);
 				var end = DateTime.Now;
-				return new JsonResult(new ResultOut { Message = $"Generation for {model.Table} table has done successfully. Generation time is {end - start}", Error = false });
+				return new JsonResult(new ResultOut { Message = $"Generation for {model.Table} table has been done successfully. Generation time is {end - start}", Error = false });
 			}
 			catch (ArgumentException ex)
 			{
-				var message = $"Generation has been failed. {model.Table} table is not exist. Exception: " + ex;
+				var message = $"Generation has been failed. {model.Table} table is not exist or not allowed for generation data. Exception: " + ex;
 				_logger.LogError(message);
 				return new JsonResult(new ResultOut { Message = message, Error = true });
 			}
@@ -83,17 +83,17 @@ namespace Engine.Controllers
 				repositoryService = resolver(table);
 				await repositoryService.Clear();
 				var end = DateTime.Now;
-				return new JsonResult(new ResultOut { Message = $"Cleaning has done successfully. Cleaning time is {end - start}", Error = false });
+				return new JsonResult(new ResultOut { Message = $"Cleaning has been done successfully. Cleaning time is {end - start}", Error = false });
 			}
 			catch (ArgumentException ex)
 			{
-				var message = $"{model.Table} table cleaning has been failed. table is not exist. Exception: " + ex;
+				var message = $"Table cleaning of {model.Table}  has been failed. table is not exist. Exception: " + ex;
 				_logger.LogError(message);
 				return new JsonResult(new ResultOut { Message = message, Error = true });
 			}
 			catch (Exception ex)
 			{
-				var message = $"{model.Table} table cleaning has been failed. Exception: " + ex;
+				var message = $"Table cleaning of {model.Table} has been failed. Exception: " + ex;
 				_logger.LogError(message);
 				return new JsonResult (new ResultOut { Message = message, Error = true });
 			}
@@ -118,7 +118,7 @@ namespace Engine.Controllers
 				sum = await repositoryService.FilterBy(model.FilterColumn, model.SummaryColumn, model.Filters.Select(f => f.Value).ToList());
 
 				WriteToCache(CacheKeys.FilterBy, sum, model.Author, GetFilter(model.FilterColumn, model.Filters));
-				return new JsonResult (new SumOut { Message = "Calculation success.", Error = false, Sum = sum }) ;
+				return new JsonResult (new SumOut { Message = "Calculation has been done successfully.", Error = false, Sum = sum }) ;
 			}
 			catch (ArgumentException ex)
 			{
@@ -154,12 +154,13 @@ namespace Engine.Controllers
 					if (cacheLog != null)
 					{
 						await logsService.Write(cacheLog);
+						return new JsonResult(new ResultOut { Message = "A new log has been added successfully", Error = false });
 					}
-					return new JsonResult(new ResultOut { Message = "A new log has been added successfully", Error = false });
+					return new JsonResult(new ResultOut { Message = "There is no value in cache.", Error = false });
 				}
 				catch (Exception ex)
 				{
-					var msg = "Writing to log is failed. Exception: " + ex;
+					var msg = "Writing to log has been failed. Exception: " + ex;
 					_logger.LogError(msg);
 					return new JsonResult(new ResultOut { Message = msg, Error = true });
 				}

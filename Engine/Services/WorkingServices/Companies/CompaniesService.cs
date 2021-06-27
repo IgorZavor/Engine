@@ -57,7 +57,7 @@ namespace Engine.Services.WorkingServices.Companies
 				case Columns.YearFounded:
 					return ((Company)entity).YearFounded;
 				default:
-					throw new InvalidOperationException($"{TableName} table doens't contain the {column} colunm or summation is not supported by {column} column ");
+					throw new InvalidOperationException($"{TableName} table doens't contain the {column} colunm or summation is not supported for {column} column ");
 			}
 		}
 
