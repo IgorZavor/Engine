@@ -68,7 +68,7 @@ namespace Engine
                     case Tables.Users:
                         return sp.GetService<UsersService>();
                     case Tables.Logs:
-                        return sp.GetService<LogsService>();
+                        return sp.GetService<ILogsService>();
                     default:
                         throw new ArgumentException($"Unsupported service type for {table} table.");
                 }

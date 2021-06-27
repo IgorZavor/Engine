@@ -184,7 +184,7 @@ namespace Engine.Controllers
 			}
 			catch (ArgumentException ex)
 			{
-				var message = $"Generation has been failed.  {model.Table} table is not exist. Exception: " + ex;
+				var message = $"Getting entities has been failed.  {model.Table} table is not exist. Exception: " + ex;
 				_logger.LogError(message);
 				return new JsonResult(new ResultOut { Message = message, Error = true });
 			}
