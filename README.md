@@ -83,19 +83,24 @@ The database includes 3 tables:</p>
 </p>
 <b><i>Api:</i></b><br>
 /api/engine/filterAndSum<br><br>
-
+<b>Note: Multiple filters are used OR operation.</b> <bt>
 
 <i>Example:</i>
 <p>
 &lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>
 &lt;FilterBy&gt;<br>
-	&lt;Authory&gt;Matt&lt;/Author&gt;<br>
-	&lt;Filters&gt;<br>
-		&lt;Value&gt;USA&lt;/Value&gt;<br>
-	&lt;/Filters&gt;<br>
-	&lt;Table&gt;Users&lt;/Table&gt;<br>
-	&lt;FilterColumn>Country&lt;/FilterColumn&gt;<br>
-	&lt;SummaryColumn&gt;Age&lt;/SummaryColumn&gt;<br>
+&nbsp;&nbsp;&lt;Authory&gt;John&lt;/Author&gt;<br>
+&nbsp;&nbsp;&lt;Filters&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;Filter&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Value&gt;USA&lt;/Value&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/Filter&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;Filter&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Value&gt;Canada&lt;/Value&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/Filter&gt;<br>
+&nbsp;&nbsp;&lt;/Filters&gt;<br>
+&nbsp;&nbsp;&lt;Table&gt;Users&lt;/Table&gt;<br>
+&nbsp;&nbsp;&lt;FilterColumn>Country&lt;/FilterColumn&gt;<br>
+&nbsp;&nbsp;&lt;SummaryColumn&gt;Age&lt;/SummaryColumn&gt;<br>
 &lt;/FilterBy&gt;<br>
 </p>
 
